@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Install app</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; background: #111; color: #eee;
+         max-width: 32rem; margin: 0 auto; padding: 2rem 1.25rem; line-height: 1.5; }
+  a.install { display: block; text-align: center; background: #3b82f6; color: #fff;
+              font-size: 1.4rem; font-weight: 600; padding: 1.1rem; border-radius: 0.8rem;
+              text-decoration: none; margin: 1.5rem 0; }
+  p.error { color: #fca5a5; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Install app</h1>
+  <div id="content"></div>
+</main>
+<script>
+  // Install page for EAS internal-distribution builds.
+  // Usage: ?p=<EAS project id>&b=<EAS build id>&n=<app name>
+  // Chat apps refuse itms-services:// links, so this ordinary https page holds one.
+  var q = new URLSearchParams(location.search);
+  var uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  var p = q.get('p') || '', b = q.get('b') || '';
+  var name = (q.get('n') || 'the app').slice(0, 40);
+  var content = document.getElementById('content');
+  if (uuid.test(p) && uuid.test(b)) {
+    document.title = 'Install ' + name;
+    document.getElementById('title').textContent = 'Install ' + name;
+    var a = document.createElement('a');
+    a.className = 'install';
+    a.textContent = 'Install ' + name;
+    a.href = 'itms-services://?action=download-manifest;url=' +
+      encodeURIComponent('https://api.expo.dev/v2/projects/' + p + '/builds/' + b + '/manifest.plist');
+    var help = document.createElement('p');
+    help.textContent = 'iOS will ask whether to install. Choose Install, then find the app on your home screen.';
+    content.appendChild(a);
+    content.appendChild(help);
+  } else {
+    var err = document.createElement('p');
+    err.className = 'error';
+    err.textContent = 'This link is missing its build details. Ask for a fresh install link.';
+    content.appendChild(err);
+  }
+</script>
+</body>
+</html>
